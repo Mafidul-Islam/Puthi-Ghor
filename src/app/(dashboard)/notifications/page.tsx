@@ -4,8 +4,16 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Send, Trash2 } from 'lucide-react';
 
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  target: string;
+  created_at: string;
+}
+
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');

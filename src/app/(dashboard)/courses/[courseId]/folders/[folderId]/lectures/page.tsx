@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Plus, Edit, Trash2, PlaySquare, ArrowLeft, Youtube } from 'lucide-react';
+import Image from 'next/image';
 
 interface LectureData {
   id: string;
@@ -39,9 +40,7 @@ export default function FolderLecturesPage() {
   const [thumbnailUrl, setThumbnailUrl] = useState('');
   const [orderIndex, setOrderIndex] = useState(0);
 
-  useEffect(() => { fetchData(); }, [folderId]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     const { data: courseData } = await supabase.from('courses').select('id, title').eq('id', courseId).single();
     if (courseData) setCourse(courseData);
@@ -50,7 +49,9 @@ export default function FolderLecturesPage() {
     const { data, error } = await supabase.from('course_lectures').select('*').eq('folder_id', folderId).order('order_index');
     if (!error && data) setLectures(data);
     setIsLoading(false);
-  };
+  }, [courseId, folderId]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const openAdd = () => {
     setEditingId(null); setTitle(''); setDescription(''); setYoutubeUrl(''); 
@@ -69,7 +70,7 @@ export default function FolderLecturesPage() {
     if (!title.trim()) { alert('Title is required'); return; }
     
     // Final check for ID
-    let finalId = youtubeId || getYTId(youtubeUrl);
+    const finalId = youtubeId || getYTId(youtubeUrl);
     if (!finalId && youtubeUrl) {
        alert('Please enter a valid YouTube URL');
        return;
@@ -138,7 +139,9 @@ export default function FolderLecturesPage() {
             return (
               <div key={lec.id} className="bg-white rounded-xl border p-4 flex items-start gap-4">
                 {ytId ? (
-                  <img src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`} alt="" className="w-20 h-14 object-cover rounded-lg flex-shrink-0" />
+                  <div className="w-20 h-14 relative flex-shrink-0 overflow-hidden rounded-lg">
+                    <Image src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`} alt="" fill className="object-cover" />
+                  </div>
                 ) : (
                   <div className="w-20 h-14 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
                     <PlaySquare className="w-8 h-8 text-gray-300" />
@@ -195,9 +198,9 @@ export default function FolderLecturesPage() {
                   className="w-full mt-1 border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500" 
                 />
                 {(youtubeId || thumbnailUrl) && (
-                  <div className="mt-2 relative">
-                    <img src={thumbnailUrl || `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`} alt="Preview" className="w-full h-32 object-cover rounded-lg border" />
-                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] px-2 py-1 rounded">
+                  <div className="mt-2 relative h-32 w-full overflow-hidden rounded-lg border">
+                    <Image src={thumbnailUrl || `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`} alt="Preview" fill className="object-cover" />
+                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] px-2 py-1 rounded z-10">
                       ID: {youtubeId}
                     </div>
                   </div>

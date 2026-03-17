@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, X, Download, Image as ImageIcon, File as FileIcon, Star, Upload } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import Image from 'next/image';
 
 interface DigitalProduct {
   id: string;
@@ -165,8 +166,9 @@ export default function StorePage() {
 
       setIsModalOpen(false);
       fetchProducts();
-    } catch (error: any) {
-      alert('Error saving product: ' + error.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      alert('Error saving product: ' + message);
     } finally {
       setIsSaving(false);
     }
@@ -198,7 +200,7 @@ export default function StorePage() {
             <div key={product.id} className="bg-white rounded-xl border shadow-sm overflow-hidden hover:shadow-md transition group">
               <div className="relative aspect-video bg-gray-100">
                 {product.thumbnail_url ? (
-                  <img src={product.thumbnail_url} alt={product.title} className="w-full h-full object-cover" />
+                  <Image src={product.thumbnail_url} alt={product.title} fill className="object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <ImageIcon className="w-10 h-10 text-gray-300" />

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Plus, Edit, Trash2, PlaySquare, Youtube, Layout } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface CourseData {
   id: string;
@@ -30,15 +31,15 @@ export default function CoursesPage() {
   const [displayOrder, setDisplayOrder] = useState(0);
   const [status, setStatus] = useState('Active');
 
-  useEffect(() => { fetchCourses(); }, []);
-
-  const fetchCourses = async () => {
+  const fetchCourses = useCallback(async () => {
     setIsLoading(true);
     const { data, error } = await supabase.from('courses').select('*').order('display_order', { ascending: true });
     if (!error && data) setCourses(data);
     else if (error) alert('Error fetching courses: ' + error.message);
     setIsLoading(false);
-  };
+  }, []);
+
+  useEffect(() => { fetchCourses(); }, [fetchCourses]);
 
   const openAddModal = () => {
     setEditingId(null);
@@ -117,7 +118,7 @@ export default function CoursesPage() {
               <div key={course.id} className="bg-white rounded-xl shadow-sm border overflow-hidden">
                 <div className="relative h-44 bg-gray-100 flex items-center justify-center">
                   {thumb ? (
-                    <img src={thumb} alt={course.title} className="w-full h-full object-cover" />
+                    <Image src={thumb} alt={course.title} fill className="object-cover" />
                   ) : (
                     <PlaySquare className="w-16 h-16 text-gray-300" />
                   )}
@@ -175,7 +176,9 @@ export default function CoursesPage() {
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-1"><Youtube className="w-4 h-4 text-red-500" /> YouTube URL</label>
                 <input value={youtubeUrl} onChange={e => setYoutubeUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." className="w-full mt-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none" />
                 {youtubeUrl && getYouTubeThumbnail(youtubeUrl) && (
-                  <img src={getYouTubeThumbnail(youtubeUrl)!} alt="YouTube Preview" className="mt-2 rounded-lg w-full h-32 object-cover" />
+                  <div className="mt-2 relative h-32 w-full overflow-hidden rounded-lg">
+                    <Image src={getYouTubeThumbnail(youtubeUrl)!} alt="YouTube Preview" fill className="object-cover" />
+                  </div>
                 )}
               </div>
               <div>

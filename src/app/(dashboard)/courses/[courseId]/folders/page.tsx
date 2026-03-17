@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Plus, Edit, Trash2, Folder, ArrowLeft } from 'lucide-react';
@@ -31,11 +31,7 @@ export default function CourseFoldersPage() {
   const [title, setTitle] = useState('');
   const [orderIndex, setOrderIndex] = useState(0);
 
-  useEffect(() => {
-    fetchData();
-  }, [courseId]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     const { data: courseData } = await supabase.from('courses').select('id, title').eq('id', courseId).single();
     if (courseData) setCourse(courseData);
@@ -43,7 +39,11 @@ export default function CourseFoldersPage() {
     const { data, error } = await supabase.from('course_folders').select('*').eq('course_id', courseId).order('order_index');
     if (!error && data) setFolders(data);
     setIsLoading(false);
-  };
+  }, [courseId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const openAdd = () => {
     setEditingId(null); setTitle(''); setOrderIndex(folders.length);
