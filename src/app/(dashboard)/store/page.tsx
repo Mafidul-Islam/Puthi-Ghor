@@ -178,7 +178,7 @@ export default function StorePage() {
     <div className="space-y-6 p-6">
       <div className="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Digital Store</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Puthi Ghor Store</h1>
           <p className="text-gray-500">Manage your ebooks, source code, and other digital assets.</p>
         </div>
         <button 

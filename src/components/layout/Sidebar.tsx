@@ -21,7 +21,7 @@ const navItems = [
   { name: 'Classes', href: '/classes', icon: BookOpen },
   { name: 'Subjects', href: '/subjects', icon: Files },
   { name: 'PDFs', href: '/pdfs', icon: FileText },
-  { name: 'Digital Store', href: '/store', icon: ShoppingBag },
+  { name: 'Puthi Ghor Store', href: '/store', icon: ShoppingBag },
   { name: 'Users', href: '/users', icon: Users },
   { name: 'Notifications', href: '/notifications', icon: Bell },
   { name: 'Analytics', href: '/analytics', icon: BarChart },
