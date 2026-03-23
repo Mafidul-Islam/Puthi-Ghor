@@ -1,12 +1,54 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { Users, BookOpen, Files, FileText, Download } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 export default function DashboardPage() {
+  const [counts, setCounts] = useState({
+    users: 0,
+    classes: 0,
+    subjects: 0,
+    pdfs: 0,
+    downloads: 0
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      const getCount = async (table: string) => {
+        const { count, error } = await supabase
+          .from(table)
+          .select('*', { count: 'exact', head: true });
+        
+        if (error) {
+          console.error(`Error fetching count for ${table}:`, error);
+          return 0;
+        }
+        return count || 0;
+      };
+
+      const [users, classes, subjects, pdfs, downloads] = await Promise.all([
+        getCount('users'),
+        getCount('classes'),
+        getCount('subjects'),
+        getCount('pdfs'),
+        getCount('downloads')
+      ]);
+
+      setCounts({ users, classes, subjects, pdfs, downloads });
+      setIsLoading(false);
+    };
+
+    fetchCounts();
+  }, []);
+
   const stats = [
-    { name: 'Total Users', stat: '1,240', icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { name: 'Total Classes', stat: '12', icon: BookOpen, color: 'text-indigo-600', bg: 'bg-indigo-100' },
-    { name: 'Total Subjects', stat: '64', icon: Files, color: 'text-purple-600', bg: 'bg-purple-100' },
-    { name: 'Total PDFs', stat: '342', icon: FileText, color: 'text-orange-600', bg: 'bg-orange-100' },
-    { name: 'Total Downloads', stat: '12,450', icon: Download, color: 'text-green-600', bg: 'bg-green-100' },
+    { name: 'Total Users', stat: isLoading ? '...' : counts.users.toLocaleString(), icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { name: 'Total Classes', stat: isLoading ? '...' : counts.classes.toLocaleString(), icon: BookOpen, color: 'text-indigo-600', bg: 'bg-indigo-100' },
+    { name: 'Total Subjects', stat: isLoading ? '...' : counts.subjects.toLocaleString(), icon: Files, color: 'text-purple-600', bg: 'bg-purple-100' },
+    { name: 'Total PDFs', stat: isLoading ? '...' : counts.pdfs.toLocaleString(), icon: FileText, color: 'text-orange-600', bg: 'bg-orange-100' },
+    { name: 'Total Downloads', stat: isLoading ? '...' : counts.downloads.toLocaleString(), icon: Download, color: 'text-green-600', bg: 'bg-green-100' },
   ];
 
   return (

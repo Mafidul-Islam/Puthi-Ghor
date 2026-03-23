@@ -1,23 +1,56 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Ban, Trash2, CheckCircle } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+
+interface UserData {
+  id: string;
+  full_name: string;
+  email: string;
+  created_at: string;
+  status?: string;
+}
 
 export default function UsersPage() {
-  const [users, setUsers] = useState([
-    { id: 1, name: 'Rahul Sharma', email: 'rahul@example.com', class: 'Class 10', joinDate: '2023-09-15', status: 'Active' },
-    { id: 2, name: 'Priya Singh', email: 'priya@example.com', class: 'Class 12', joinDate: '2023-09-20', status: 'Blocked' },
-  ]);
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleToggleStatus = (id: number, currentStatus: string) => {
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    setIsLoading(true);
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching users:', error);
+    } else {
+      setUsers(data || []);
+    }
+    setIsLoading(false);
+  };
+
+  const handleToggleStatus = (id: string, currentStatus: string) => {
+    // Optional: implement actual user blocking in Supabase Auth if needed.
+    // We update local state to reflect UI changes.
     setUsers(users.map(u => 
       u.id === id ? { ...u, status: currentStatus === 'Active' ? 'Blocked' : 'Active' } : u
     ));
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to permanently delete this user?')) {
-      setUsers(users.filter(u => u.id !== id));
+      const { error } = await supabase.from('users').delete().eq('id', id);
+      if (error) {
+        alert('Failed to delete user: ' + error.message);
+      } else {
+        setUsers(users.filter(u => u.id !== id));
+      }
     }
   };
 
@@ -47,32 +80,40 @@ export default function UsersPage() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {users.length === 0 && (
+            {isLoading ? (
+              <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500 text-sm">Loading users...</td></tr>
+            ) : users.length === 0 ? (
               <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500 text-sm">No students registered yet.</td></tr>
+            ) : (
+              users.map((user) => {
+                const status = user.status || 'Active'; // default to active if not present
+                const joinDate = user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A';
+                
+                return (
+                  <tr key={user.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{user.full_name || 'No Name'}</div>
+                      <div className="text-xs text-gray-500">{user.email || 'No email'}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">N/A</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{joinDate}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      {status === 'Active' ? (
+                         <button onClick={() => handleToggleStatus(user.id, status)} className="text-orange-600 hover:text-orange-900 mr-4" title="Block User"><Ban className="w-4 h-4" /></button>
+                      ) : (
+                         <button onClick={() => handleToggleStatus(user.id, status)} className="text-green-600 hover:text-green-900 mr-4" title="Unblock User"><CheckCircle className="w-4 h-4" /></button>
+                      )}
+                      <button onClick={() => handleDelete(user.id)} className="text-red-600 hover:text-red-900" title="Delete User"><Trash2 className="w-4 h-4" /></button>
+                    </td>
+                  </tr>
+                );
+              })
             )}
-            {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                  <div className="text-xs text-gray-500">{user.email}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.class}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.joinDate}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {user.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  {user.status === 'Active' ? (
-                     <button onClick={() => handleToggleStatus(user.id, user.status)} className="text-orange-600 hover:text-orange-900 mr-4" title="Block User"><Ban className="w-4 h-4" /></button>
-                  ) : (
-                     <button onClick={() => handleToggleStatus(user.id, user.status)} className="text-green-600 hover:text-green-900 mr-4" title="Unblock User"><CheckCircle className="w-4 h-4" /></button>
-                  )}
-                  <button onClick={() => handleDelete(user.id)} className="text-red-600 hover:text-red-900" title="Delete User"><Trash2 className="w-4 h-4" /></button>
-                </td>
-              </tr>
-            ))}
           </tbody>
         </table>
       </div>
