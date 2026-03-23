@@ -19,16 +19,11 @@ interface DigitalProduct {
   created_at: string;
 }
 
-const CATEGORIES = [
-  { id: 'ebook', name: 'E-Book' },
-  { id: 'source_code', name: 'Source Code' },
-  { id: 'ai_prompt', name: 'AI Prompt' },
-  { id: 'pdf', name: 'PDF File' },
-  { id: 'digital_material', name: 'Digital Material' },
-];
+// Removed static CATEGORIES array as it is now fetched dynamically from Supabase
 
 export default function StorePage() {
   const [products, setProducts] = useState<DigitalProduct[]>([]);
+  const [categories, setCategories] = useState<{slug: string, name: string}[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -52,7 +47,15 @@ export default function StorePage() {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    const { data } = await supabase.from('product_categories').select('slug, name').eq('status', 'active');
+    if (data) {
+      setCategories(data);
+    }
+  };
 
   const fetchProducts = async () => {
     setIsLoading(true);
@@ -268,11 +271,12 @@ export default function StorePage() {
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">Category</label>
                     <select 
-                      value={formData.category}
+                      value={formData.category} // category stores slug
                       onChange={(e) => setFormData({...formData, category: e.target.value})}
                       className="w-full border rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition"
                     >
-                      {CATEGORIES.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+                      {categories.map(cat => <option key={cat.slug} value={cat.slug}>{cat.name}</option>)}
+                      {categories.length === 0 && <option value="ebook">Loading...</option>}
                     </select>
                   </div>
                   <div>

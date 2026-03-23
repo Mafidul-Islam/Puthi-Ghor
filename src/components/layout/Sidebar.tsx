@@ -13,7 +13,8 @@ import {
   BarChart, 
   Settings, 
   LogOut,
-  ShoppingBag
+  ShoppingBag,
+  Tags
 } from 'lucide-react';
 
 const navItems = [
@@ -22,6 +23,7 @@ const navItems = [
   { name: 'Subjects', href: '/subjects', icon: Files },
   { name: 'PDFs', href: '/pdfs', icon: FileText },
   { name: 'Puthi Ghor Store', href: '/store', icon: ShoppingBag },
+  { name: 'Categories', href: '/categories', icon: Tags },
   { name: 'Users', href: '/users', icon: Users },
   { name: 'Notifications', href: '/notifications', icon: Bell },
   { name: 'Analytics', href: '/analytics', icon: BarChart },
