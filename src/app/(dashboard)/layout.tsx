@@ -28,7 +28,6 @@ export default function DashboardLayout({
           return;
         }
 
-        // Check role in public.users table
         const { data: profile, error: profileError } = await supabase
           .from('users')
           .select('role')
@@ -68,21 +67,26 @@ export default function DashboardLayout({
 
   if (!isAuthorized) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center h-screen bg-[#f8f9ff]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#3755c3]"></div>
+          <p className="text-sm text-[#45464d] font-semibold font-body">Loading dashboard…</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="bg-[#f8f9ff] min-h-screen">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Topbar />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
-          {children}
-        </main>
-      </div>
+      <Topbar />
+      {/* ml-72 to offset fixed sidebar, pt-24 to offset fixed topbar */}
+      <main className="ml-72 pt-32 pb-16 px-12 min-h-screen">
+        {children}
+      </main>
+      {/* Decorative ambient blobs */}
+      <div className="fixed top-[-10%] right-[-5%] w-[40rem] h-[40rem] bg-[#3755c3]/5 rounded-full blur-[120px] pointer-events-none -z-10" />
+      <div className="fixed bottom-[-10%] left-[10%] w-[30rem] h-[30rem] bg-[#57dffe]/10 rounded-full blur-[100px] pointer-events-none -z-10" />
     </div>
   );
 }

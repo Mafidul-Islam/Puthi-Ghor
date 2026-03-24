@@ -169,7 +169,7 @@ export default function StorePage() {
 
       setIsModalOpen(false);
       fetchProducts();
-    } catch (error) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       alert('Error saving product: ' + message);
     } finally {

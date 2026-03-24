@@ -3,31 +3,18 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { 
-  LayoutDashboard, 
-  BookOpen, 
-  Files, 
-  FileText, 
-  Users, 
-  Bell, 
-  BarChart, 
-  Settings, 
-  LogOut,
-  ShoppingBag,
-  Tags
-} from 'lucide-react';
 
 const navItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Classes', href: '/classes', icon: BookOpen },
-  { name: 'Subjects', href: '/subjects', icon: Files },
-  { name: 'PDFs', href: '/pdfs', icon: FileText },
-  { name: 'Puthi Ghor Store', href: '/store', icon: ShoppingBag },
-  { name: 'Categories', href: '/categories', icon: Tags },
-  { name: 'Users', href: '/users', icon: Users },
-  { name: 'Notifications', href: '/notifications', icon: Bell },
-  { name: 'Analytics', href: '/analytics', icon: BarChart },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Dashboard',     href: '/dashboard',     icon: 'dashboard' },
+  { name: 'Classes',       href: '/classes',        icon: 'school' },
+  { name: 'Subjects',      href: '/subjects',       icon: 'book' },
+  { name: 'PDFs',          href: '/pdfs',           icon: 'description' },
+  { name: 'Store',         href: '/store',          icon: 'shopping_bag' },
+  { name: 'Categories',    href: '/categories',     icon: 'category' },
+  { name: 'Users',         href: '/users',          icon: 'group' },
+  { name: 'Notifications', href: '/notifications',  icon: 'notifications' },
+  { name: 'Analytics',     href: '/analytics',      icon: 'analytics' },
+  { name: 'Settings',      href: '/settings',       icon: 'settings' },
 ];
 
 export default function Sidebar() {
@@ -40,41 +27,49 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="flex flex-col w-64 bg-white border-r min-h-screen">
-      <div className="flex items-center justify-center h-16 border-b">
-        <span className="text-xl font-bold text-blue-600">Puthi Ghor Admin</span>
+    <aside className="h-screen w-72 flex-col fixed left-0 top-0 flex flex-col py-8 bg-gradient-to-r from-[#eff4ff] to-[#f8f9ff] z-40 border-r-0">
+      {/* Brand */}
+      <div className="px-10 mb-12">
+        <h1 className="text-2xl font-bold text-[#0b1c30] font-headline tracking-tight">Puthi Ghor</h1>
+        <p className="text-xs font-semibold text-[#45464d] tracking-widest mt-1 opacity-70 uppercase">Editorial Admin</p>
       </div>
-      <div className="flex-1 overflow-y-auto">
-        <nav className="px-4 py-4 space-y-1">
-          {navItems.map((item) => {
-            const isActive = pathname.startsWith(item.href);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg ${
-                  isActive
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
+
+      {/* Navigation */}
+      <nav className="flex-1 space-y-1 overflow-y-auto px-4">
+        {navItems.map((item) => {
+          const isActive = pathname.startsWith(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-4 px-6 py-3 font-semibold tracking-tight transition-all duration-300 font-headline ${
+                isActive
+                  ? 'bg-white text-[#3755c3] shadow-sm rounded-full mx-0 scale-[1.02]'
+                  : 'text-[#45464d] hover:text-[#0b1c30] px-10 hover:translate-x-1'
+              }`}
+            >
+              <span
+                className="material-symbols-outlined"
+                style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
               >
-                <Icon className={`w-5 h-5 mr-3 ${isActive ? 'text-blue-700' : 'text-gray-400'}`} />
-                {item.name}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
-      <div className="p-4 border-t">
+                {item.icon}
+              </span>
+              <span>{item.name}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Logout */}
+      <div className="px-10 mt-auto pt-8">
         <button
           onClick={handleLogout}
-          className="flex items-center w-full px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-red-50 hover:text-red-700"
+          className="flex items-center gap-4 text-error font-semibold hover:opacity-70 transition-opacity font-headline tracking-tight"
         >
-          <LogOut className="w-5 h-5 mr-3 text-gray-400" />
-          Logout
+          <span className="material-symbols-outlined">logout</span>
+          <span>Logout</span>
         </button>
       </div>
-    </div>
+    </aside>
   );
 }
